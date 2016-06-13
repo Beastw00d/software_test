@@ -1,7 +1,7 @@
 Basic Rules
 ===========
 1. Review the questions in this file. Reply back via email with an estimated
-   delivery date.
+   delivery date. 
 2. Answer each of the questions below.
 3. Add your answer to each question to this file, in-line.
 4. Send the final file back for review.
@@ -16,12 +16,27 @@ Developer Test
 ==============
 
 1.  What editor will you use to edit this file, and why?
+
+I am going to use Visual Studio Code because it doesn't have formatting restrictions on txt files.
+
 2.  Some of the questions will ask for a solution in the language of
     your choice.  What language(s) will you choose, and why?
+
+I will be using C# and javascript. These are my two strongest languages. I have acquired a lot of expertize with these languages working as a full-stack developer.
+
 3.  Explain the difference between testing and debugging.
+
+Testing is the process of making sure that the software meets the requirements. By having tests developers can detect if a change has broken the functionality before it gets put into the master/release branch and/or it is released to production. Debugging is the process of stepping through the code trying to figure out the root cause of a bug or failing test.
+
 4.  Consider a user querying a search engine.  Describe, in as much
     detail as you like, what happens between the user clicking the
     "submit" button and the display of the results.
+
+Search engines need to crawl the internet to keep track of all the documents on the web. The search engines use bots called "crawlers" or "spiders" to do this task. Once the pages are found by these bots they are stored in databases. Search engines have to be fast so to achieve this companies have databases all over the world. When the user clicks the "submit" button the search engine will look through all of its documents; first it will return only the relevant documents and secondly it will rank the results in order based on relevance and popularity. (moz.com, monash.com)
+
+source:
+https://moz.com/beginners-guide-to-seo/how-search-engines-operate
+http://www.monash.com/spidap4.html
 
 The two tables below describe relationships between employees,
 managers, and departments (the columns employee.mgr_id and
@@ -61,25 +76,338 @@ employee                              department
 
 5.  Write an SQL query to list the full name of every employee,
     alphabetized by first name.
+
+    select name 
+    from employee
+    order by name
+
 6.  Write an SQL query to list the full name of every employee,
     alphabetized by last name.
+
+    Microsoft SQL Server
+   
+    select name 
+    from employee
+    order by substring(name, charindex(' ', name) + 1, len(name))
+
+    If there is a way for the name column to have more than a first and last name then the query will need to be a little more complicated to handle middle names.
+    
+    select name
+    from employee
+    order by substring(name, (len(name) + 1) - CHARINDEX(' ', LTRIM(REVERSE(name)))+1,len(name))
+
 7.  Write an SQL query to list the full name of every employee along
     with the full name of his/her manager.
+    
+    -- used left join so it will include the managers even though they themselves won't have anything in the manager column
+    
+    select employee.name, manager.name
+    from employee
+    left join employee as manager
+    on employee.mgr_id = manager.id
+
 8.  Write an SQL query to list the full name of every employee in the
     Sales department.
+
+    -- if we want to exclude the managers
+    
+    select employee.name
+    from department
+    inner join employee
+    on employee.mgr_id = department.head
+    where department.name = 'Sales'
+
+    -- if we want to include the managers
+
+    select employee.name
+    from department
+    inner join employee
+    on employee.mgr_id = department.head or employee.id = department.head
+    where department.name = 'Sales'
+
 9.  Write an SQL query to list the full name of every employee along
     with name of his/her department.
+
+    -- if we want to exclude the managers
+    
+    select employee.name, department.name
+    from employee
+    inner join department
+    on employee.mgr_id = department.head
+
+    -- if we want to include the managers
+
+    select employee.name, department.name
+    from employee
+    inner join department
+    on employee.mgr_id = department.head or department.head = employee.id
+
 10. Is there a better design for a database that supports the queries
     described in questions 5-9?  If so, describe it.  If not, why not?
+
+    I believe there is a better design. With the current design if a manager leaves a department, updates would have to be ran to update all employee's mgr_ids for the employee table and head in the department table. With the design below only the department table would have to be updated with the employee_id of the new manager. 
+
+    employee(id,name,department_id)
+    department(id, name)
+    manager(id, employee_id)
+
 11. Write a function in the language of your choice that implements
     quicksort on an array of integers.
+
+    private static void QuickSort(int[] arr, int left, int right) 
+    {
+        if (left < right)
+		{
+			int pivot = Partition(arr, left, right);
+
+			if (pivot > 1)
+				QuickSort(arr, left, pivot - 1);
+
+			if (pivot + 1 < right)
+				QuickSort(arr, pivot + 1, right);
+		}
+    }
+
+    private static int Partition(int[] numbers, int left, int right)
+	{
+		int pivot = numbers[left];
+		while (true)
+		{
+			while (numbers[left] < pivot)
+				left++;
+
+			while (numbers[right] > pivot)
+				right--;
+
+			if (numbers[right] == pivot && numbers[left] == pivot)
+			{
+				left++;
+			}
+
+			if (left < right)
+			{
+				int temp = numbers[right];
+				numbers[right] = numbers[left];
+				numbers[left] = temp;
+			}
+			else
+			{
+				return right;
+			}
+		}
+	}
+
+    sources: 
+    http://www.softwareandfinance.com/CSharp/QuickSort_Recursive.html
+    https://en.wikipedia.org/wiki/Quicksort#Choice_of_pivot
+
+
 12. Write a function in the language of your choice that performs
     binary search on a sorted array of integers.
+
+    The simplest approach would be to use the built Array.BinarySearch method
+
+    private static int BinarySearch(int[] numbers, int num)
+	{
+		return Array.BinarySearch(numbers, num);
+    }
+
+    But if we wanted to implement our own it would look like
+
+    private static int BinarySearch(int[] inputArray, int key, int min, int max)
+	{
+		while (min <= max)
+		{
+			int mid = (min + max) / 2;
+			if (key == inputArray[mid])
+			{
+				return ++mid;
+			}
+			else if (key < inputArray[mid])
+			{
+				max = mid - 1;
+			}
+			else
+			{
+				min = mid + 1;
+			}
+    	}
+			return -1;
+	}
+
+    source:
+    http://www.c-sharpcorner.com/blogs/binary-search-implementation-using-c-sharp1
+
 13. Write a function in the language of your choice performs the query
     you wrote for question 7, and outputs the results as an HTML table.
+    
+    protected void Page_Load(object sender, EventArgs e)
+	{
+		if (!this.IsPostBack)
+		{
+			DataTable dt = this.GetData();
+			StringBuilder html = new StringBuilder();
+			html.Append("<table>");
+
+			html.Append("<tr>");
+			foreach (DataColumn column in dt.Columns)
+			{
+				html.Append("<th>");
+				html.Append(column.ColumnName);
+				html.Append("</th>");
+			}
+			html.Append("</tr>");
+
+			foreach (DataRow row in dt.Rows)
+			{
+				html.Append("<tr>");
+				foreach (DataColumn column in dt.Columns)
+				{
+					html.Append("<td>");
+					html.Append(row[column.ColumnName]);
+					html.Append("</td>");
+				}
+				html.Append("</tr>");
+			}
+
+			html.Append("</table>");
+
+			PlaceHolder1.Controls.Add(new Literal { Text = html.ToString() });
+		}
+	}
+
+	private DataTable GetData()
+	{
+		string constr = ConfigurationManager.ConnectionStrings["mydb"].ConnectionString;
+		using (SqlConnection con = new SqlConnection(constr))
+		{
+			using (SqlCommand cmd = new SqlCommand("SELECT employee.name as 'employee name', manager.name as 'manager name' FROM employee LEFT JOIN employee as manager ON employee.mgr_id = manager.id" ))
+			{
+				using (SqlDataAdapter sda = new SqlDataAdapter())
+				{
+					cmd.Connection = con;
+					sda.SelectCommand = cmd;
+					using (DataTable dt = new DataTable())
+					{
+						sda.Fill(dt);
+						return dt;
+					}
+				}
+			}
+		}
+	}
+
 14. Write a program in the language of your choice that takes a filename
     and a number N as arguments and retrieves and outputs the Nth line
     from the file.
+
+    If using .NET 4.0 or higher 
+
+    private static string FileLineFinder(string fileName, int num)
+	{
+		var outputs = File.ReadLines(fileName).ToList();
+		return outputs.Count < num ? "" : outputs[num];
+	}
+
+    If using earlier verision 
+
+    private static string FileLineFinder(string fileName, int num)
+	{
+		using (var reader = File.OpenText(fileName))
+		{
+
+			while (!reader.EndOfStream)
+			{
+				var output = reader.ReadLine();
+				if (num == 0) return output;
+				num--;
+			}
+		}
+		return "";
+	}
+
 15. Write the function from question 12 in a different language.
+
+    function swap(array, indexA, indexB) {
+        var temp = array[indexA];
+        array[indexA] = array[indexB];
+        array[indexB] = temp;
+    }
+
+    function partition(array, pivot, left, right) {
+        var storeIndex = left,
+        pivotValue = array[pivot];
+
+        swap(array, pivot, right);
+
+        for(var v = left; v < right; v++) {
+            if(array[v] < pivotValue) {
+                swap(array, v, storeIndex);
+                storeIndex++;
+            }
+        }
+        swap(array, right, storeIndex);
+        return storeIndex;
+    }
+
+    function quickSort(array, left, right) {
+
+        var pivot = null;
+        if(typeof left !== 'number') {
+        left = 0;
+        }
+
+        if(typeof right !== 'number') {
+        right = array.length - 1;
+        }
+
+        if(left < right) {
+
+        pivot     = left + Math.ceil((right - left) * 0.5);
+        newPivot  = partition(array, pivot, left, right);
+
+        sort(array, left, newPivot - 1);
+        sort(array, newPivot + 1, right);
+        }
+    }
+
+    source: 
+    https://gist.github.com/paullewis/1981455
+
+
 16. Write the program from question 14 in a different language (it can
     be the same language you used for #15, but it doesn't have to be).
+
+
+    var Promise = require('promise');
+    var readline = require('linebyline');
+
+
+    function fileLineFinder(fileName, num) {
+        rl = readline(fileName);
+        var output = '';
+        return new Promise(function (fulfill, reject) {
+            rl.on('line', function (line, lineCount, byteCount) {
+                // lineCount starts at 1 
+                if (lineCount - 1 === num) {
+                    output = line;
+                    rl.emit('close');
+                }
+            });
+            rl.on('error', function (e) {
+                reject(e);
+            });
+            rl.on('close', function () {
+                fulfill(output);
+            });
+        });
+    }
+
+    // example call
+    fileLineFinder(fileName, 200)
+        .then(function(data) {
+            console.log(data);
+        }).catch(function(err) {
+            console.log(err);
+        });
+
